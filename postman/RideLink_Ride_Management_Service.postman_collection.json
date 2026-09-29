@@ -1,0 +1,268 @@
+{
+  "info": {
+    "_postman_id": "f5e4b789-231a-4d7a-8b8a-921345678901",
+    "name": "RideLink - Ride Management Service",
+    "description": "Postman collection for testing and evaluating the Ride Management Service (IT3130 - RideLink Group Assignment).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Ride Lifecycle Operations",
+      "item": [
+        {
+          "name": "Create Ride Request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (pm.response.code === 201) {",
+                  "    pm.environment.set('rideId', jsonData.id);",
+                  "    pm.environment.set('passengerId', jsonData.passengerId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pickup\": {\n    \"placeName\": \"University Entrance, Colombo 03\",\n    \"latitude\": 6.9022,\n    \"longitude\": 79.8612\n  },\n  \"destination\": {\n    \"placeName\": \"Colombo Fort Railway Station\",\n    \"latitude\": 6.9344,\n    \"longitude\": 79.8500\n  },\n  \"notes\": \"Please call on arrival at gate 2\",\n  \"estimatedFare\": 450.00,\n  \"distanceKm\": 4.2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/rides",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "rides"]
+            }
+          }
+        },
+        {
+          "name": "Assign Driver to Ride",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (pm.response.code === 200 && jsonData.driverId) {",
+                  "    pm.environment.set('driverId', jsonData.driverId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/rides/{{rideId}}/assign",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "rides", "{{rideId}}", "assign"]
+            }
+          }
+        },
+        {
+          "name": "Driver Accepts Ride",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/rides/{{rideId}}/accept",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "rides", "{{rideId}}", "accept"]
+            }
+          }
+        },
+        {
+          "name": "Driver Starts Ride",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/rides/{{rideId}}/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "rides", "{{rideId}}", "start"]
+            }
+          }
+        },
+        {
+          "name": "Driver Completes Ride",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/rides/{{rideId}}/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "rides", "{{rideId}}", "complete"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Ride",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Passenger requested cancellation due to meeting reschedule\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/rides/{{rideId}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "rides", "{{rideId}}", "cancel"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Query Operations",
+      "item": [
+        {
+          "name": "Get Ride by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/rides/{{rideId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "rides", "{{rideId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get My Rides",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/rides/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "rides", "my"]
+            }
+          }
+        },
+        {
+          "name": "Get Passenger Rides",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/rides/passenger/{{passengerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "rides", "passenger", "{{passengerId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Driver Rides",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/rides/driver/{{driverId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "rides", "driver", "{{driverId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Negative Scenarios",
+      "item": [
+        {
+          "name": "Validation Error - Invalid Coordinates (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pickup\": {\n    \"placeName\": \"Bad Latitude Location\",\n    \"latitude\": 120.0,\n    \"longitude\": 79.8612\n  },\n  \"destination\": {\n    \"placeName\": \"Colombo Fort\",\n    \"latitude\": 6.9344,\n    \"longitude\": 79.8500\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/rides",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "rides"]
+            }
+          }
+        },
+        {
+          "name": "Resource Not Found (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/rides/non-existent-uuid-000000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "rides", "non-existent-uuid-000000"]
+            }
+          }
+        },
+        {
+          "name": "Invalid State Transition - Start from REQUESTED (409)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/rides/{{rideId}}/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "rides", "{{rideId}}", "start"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Ride - Blank Reason (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/rides/{{rideId}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "rides", "{{rideId}}", "cancel"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

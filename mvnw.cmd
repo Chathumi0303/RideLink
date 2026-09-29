@@ -25,7 +25,16 @@
 @REM   MVNW_REPOURL - repo url base for downloading maven distribution
 @REM   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
 @REM   MVNW_VERBOSE - true: enable verbose log; others: silence the output
-@REM ----------------------------------------------------------------------------
+@REM Check if local Maven installation exists
+@IF EXIST "C:\maven\bin\mvn.cmd" (
+  "C:\maven\bin\mvn.cmd" %*
+  @EXIT /B %ERRORLEVEL%
+)
+@WHERE mvn >nul 2>nul
+@IF %ERRORLEVEL% EQU 0 (
+  mvn %*
+  @EXIT /B %ERRORLEVEL%
+)
 
 @IF "%__MVNW_ARG0_NAME__%"=="" (SET __MVNW_ARG0_NAME__=%~nx0)
 @SET __MVNW_CMD__=

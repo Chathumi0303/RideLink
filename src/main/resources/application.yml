@@ -1,0 +1,51 @@
+server:
+  port: ${PORT:8083}
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: never
+
+spring:
+  application:
+    name: ride-management-service
+
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/ride_management_db}
+      auto-index-creation: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # In development/evaluation, a symmetric secret key or public key is supported
+          secret-key: ${JWT_SECRET_KEY:ridelink-super-secret-jwt-signing-key-for-development-and-evaluation-purposes-must-be-at-least-256-bits!}
+          # Or if the group's Account Service uses asymmetric JWKS endpoint:
+          # jwk-set-uri: ${JWK_SET_URI:http://localhost:8081/.well-known/jwks.json}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+  show-actuator: false
+
+# External microservice URLs for interservice communication
+services:
+  driver-vehicle:
+    base-url: ${DRIVER_SERVICE_BASE_URL:http://localhost:8082}
+    connect-timeout-ms: ${DRIVER_SERVICE_CONNECT_TIMEOUT_MS:3000}
+    read-timeout-ms: ${DRIVER_SERVICE_READ_TIMEOUT_MS:5000}
+  fare-payment:
+    base-url: ${FARE_PAYMENT_SERVICE_BASE_URL:http://localhost:8084}
+    connect-timeout-ms: ${FARE_PAYMENT_SERVICE_CONNECT_TIMEOUT_MS:3000}
+    read-timeout-ms: ${FARE_PAYMENT_SERVICE_READ_TIMEOUT_MS:5000}
+
+logging:
+  level:
+    root: INFO
+    com.ridelink.ridemanagement: DEBUG
+    org.springframework.security: INFO
+    org.springframework.data.mongodb: INFO
